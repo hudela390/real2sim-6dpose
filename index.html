@@ -179,31 +179,47 @@
   </div>
 </section>
 
-<!-- ============ TEASER (real | sim twin) ============ -->
+<!-- ============ TEASER (real | sim replay | policy-derived) ============ -->
 <section class="section" style="padding-top:0" data-stage="0">
   <div class="container is-max-desktop">
     <div class="video-grid" data-noreorder id="teaser-grid">
       <div class="vitem">
-        <video class="result-video" src="videos/duck_104715.mp4" muted autoplay playsinline preload="auto"></video>
-        <p class="vcap"><b>Real</b> — tracked 6-DoF pose on egocentric RGB</p>
+        <video class="result-video" src="videos/duck_104715.mp4" muted autoplay loop playsinline preload="auto"></video>
+        <p class="vcap"><b>Real</b> — egocentric RGB capture</p>
       </div>
       <div class="vitem">
         <div class="simtwin" id="simtwin" tabindex="0" role="application"
-             aria-label="Interactive 3D preview of the simulation twin. Drag with the mouse or use the arrow keys to rotate.">
+             aria-label="Interactive 3D preview of the sim replay. Drag with the mouse or use the arrow keys to rotate.">
           <div class="simtwin-fallback">
             <div class="emoji">🧊</div>
-            <div class="ph-title">Sim twin</div>
+            <div class="ph-title">Sim replay</div>
             <div class="ph-sub">loading interactive 3D preview…</div>
           </div>
           <div class="simtwin-hint" aria-hidden="true">drag to rotate ↻</div>
         </div>
-        <p class="vcap"><b>Simulation</b> — interactive placeholder for the Isaac&nbsp;Sim replay<br>
-          <span class="vcap-sub">final replay: <code>326 frames</code> @ 50&nbsp;fps (6.52&nbsp;s) for an equal side-by-side cut</span></p>
+        <p class="vcap"><b>Sim replay</b> — kinematic reconstruction in sim<br>
+          <span class="vcap-sub">final replay: <code>326 frames</code> @ 50&nbsp;fps (6.52&nbsp;s)</span></p>
+      </div>
+      <div class="vitem">
+        <div class="simtwin" id="policytwin" tabindex="0" role="application"
+             aria-label="Interactive 3D preview of the policy-derived rollout. Drag with the mouse or use the arrow keys to rotate.">
+          <div class="simtwin-fallback">
+            <div class="emoji">🧊</div>
+            <div class="ph-title">Policy-derived</div>
+            <div class="ph-sub">loading interactive 3D preview…</div>
+          </div>
+          <div class="simtwin-hint" aria-hidden="true">drag to rotate ↻</div>
+        </div>
+        <p class="vcap"><b>Policy-derived</b> — dynamic residual-policy rollout<br>
+          <span class="vcap-sub">final rollout: <code>326 frames</code> @ 50&nbsp;fps (6.52&nbsp;s)</span></p>
       </div>
     </div>
-    <div class="grid-controls"><button class="resync-btn fs-btn" type="button" aria-label="View the real and sim-twin side by side, fullscreen"><i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i>&nbsp;Fullscreen</button></div>
-    <p class="vcap" style="max-width:560px;margin:1rem auto 0">
-      Tracked CAD pose on egocentric RGB — grasp → carry → drop → settle. No depth sensor.
+    <div class="grid-controls">
+      <button class="resync-btn" id="teaser-playpause" type="button" aria-label="Pause the teaser row: video and both 3D previews"><i class="fas fa-pause" aria-hidden="true"></i>&nbsp;Pause all</button>
+      <button class="resync-btn fs-btn" type="button" aria-label="View the teaser row fullscreen"><i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i>&nbsp;Fullscreen</button>
+    </div>
+    <p class="vcap" style="max-width:600px;margin:1rem auto 0">
+      Real capture → kinematic reconstruction replayed in sim → policy-derived rollout. No depth sensor.
     </p>
   </div>
 </section>
@@ -400,6 +416,7 @@
     // 1) Auto-synced grids (teaser + method progression): start together, restart together.
     //    Paused while offscreen to save decode work; re-entering restarts them in sync.
     document.querySelectorAll('.video-grid:not([data-controls])').forEach(function(grid){
+      if (grid.id === 'teaser-grid') return;   // teaser has its own global start/stop control
       var vids = Array.prototype.slice.call(grid.querySelectorAll('video'));
       if (!vids.length) return;
       var onScreen = true;
@@ -424,13 +441,36 @@
       }
     });
 
-    // 1b) Teaser (Real + interactive sim-twin): give the pair its own fullscreen button.
+    // 1b) Teaser (Real + Sim replay + Policy-derived): 3-up fullscreen + a single global
+    //     Play all / Pause all pill that toggles the video and BOTH 3D viewers together.
     (function(){
       var tg = document.getElementById('teaser-grid');
       if (!tg) return;
       var gc = tg.nextElementSibling;
       while (gc && !(gc.classList && gc.classList.contains('grid-controls'))) gc = gc.nextElementSibling;
-      wrapForFullscreen(tg, gc, true);
+      wrapForFullscreen(tg, gc, false);   // 3-up (not the 2-up fs-two layout)
+
+      var btn = document.getElementById('teaser-playpause');
+      var vid = tg.querySelector('video');
+      if (btn){
+        var playing = true;
+        function paint(){
+          btn.innerHTML = playing ? '<i class="fas fa-pause" aria-hidden="true"></i>&nbsp;Pause all'
+                                  : '<i class="fas fa-play" aria-hidden="true"></i>&nbsp;Play all';
+          btn.setAttribute('aria-label', (playing ? 'Pause' : 'Play') + ' the teaser row: video and both 3D previews');
+          btn.setAttribute('aria-pressed', String(!playing));
+        }
+        btn.addEventListener('click', function(ev){
+          ev.stopPropagation();
+          playing = !playing;
+          // 3D viewers register their {play,pause} here once the module mounts them
+          var viewers = window.__teaserViewers || [];
+          if (playing){ if (vid){ vid.dataset.userPaused = '0'; tryplay(vid); } viewers.forEach(function(v){ v.play(); }); }
+          else        { if (vid){ vid.dataset.userPaused = '1'; vid.pause(); }  viewers.forEach(function(v){ v.pause(); }); }
+          paint();
+        });
+        paint();
+      }
     })();
 
     // 2) Controlled grids: the .vbtn covers the whole frame, so clicking anywhere on the
@@ -504,12 +544,12 @@
       });
     }, { once: true });
 
-    // 5) if the 3D viewer module (CDN) never comes up, say so in the placeholder
+    // 5) if the 3D viewer module (CDN) never comes up, say so in each placeholder
     setTimeout(function(){
-      if (!window.__simtwinReady){
-        var sub = document.querySelector('#simtwin .simtwin-fallback .ph-sub');
-        if (sub) sub.textContent = '3D preview unavailable — Isaac Sim replay coming soon';
-      }
+      document.querySelectorAll('.simtwin').forEach(function(c){
+        var fb = c.querySelector('.simtwin-fallback');
+        if (fb){ var sub = fb.querySelector('.ph-sub'); if (sub) sub.textContent = '3D preview unavailable — coming soon'; }
+      });
     }, 8000);
   })();
 </script>
@@ -527,24 +567,34 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 /* ================================================================
-   Sim-twin interactive viewer (teaser, right slot)
+   Interactive 3D viewer factory  (makeViewer)
    ----------------------------------------------------------------
-   TODO(sim-replay): drop in the real 3D scene here. Preferred format
-   is glTF 2.0 -- a single self-contained *.glb* (binary, with meshes,
-   PBR materials, and the baked animation clip in one file). .gltf +
-   .bin/textures also works; OBJ/FBX need their own loaders.
+   makeViewer(container) builds one fully independent viewer (its own
+   renderer/scene/controls/hint/auto-demo) and returns a {play, pause}
+   handle. It is instantiated TWICE in the teaser: the "Sim replay" and
+   the "Policy-derived" slots. Add more by calling makeViewer again.
 
-   Put the file next to the videos (e.g. assets/sim_replay.glb) and
-   replace buildPlaceholderModel() with:
+   TODO(sim-replay / policy-rollout): there are now TWO real assets to
+   wire, one per viewer. Preferred format is glTF 2.0 -- a single
+   self-contained *.glb* (binary: meshes, PBR materials, and the baked
+   animation clip in one file). .gltf + .bin/textures also works;
+   OBJ/FBX need their own loaders.
+
+     assets/sim_replay.glb     -> the #simtwin  viewer (kinematic replay)
+     assets/policy_rollout.glb -> the #policytwin viewer (policy rollout)
+
+   Pass the asset path into makeViewer(container, url) and, in place of
+   buildPlaceholderModel(), load it:
 
      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-     const gltf  = await new GLTFLoader().loadAsync('assets/sim_replay.glb');
+     const gltf  = await new GLTFLoader().loadAsync(url);
      const model = gltf.scene;
      const mixer = new THREE.AnimationMixer(model);
      mixer.clipAction(gltf.animations[0]).play();
-     // ...advance `mixer.update(clock.getDelta())` inside tick().
+     // advance `mixer.update(clock.getDelta())` inside tick() -- and gate
+     // it on `motion` so the global Play all / Pause all still freezes it.
 
-   The replay must be 326 frames @ 50 fps (6.52 s), looped, so it cuts
+   Each asset must be 326 frames @ 50 fps (6.52 s), looped, so both cut
    side-by-side against the real video on the left.
 
    Scrollability: OrbitControls zoom is intentionally OFF and the canvas
@@ -578,7 +628,7 @@ function buildPlaceholderModel(){
   return g;
 }
 
-function initSimTwinViewer(container){
+function makeViewer(container){
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
@@ -623,6 +673,7 @@ function initSimTwinViewer(container){
   let lastInteraction = -1e9;
   let demo = null, nextDemoAt = performance.now() + 3000;
   let hintTimers = [];
+  let motion = true;   // global Play all / Pause all toggles this (freezes auto motion)
 
   function stopHints(){
     hintTimers.forEach(clearTimeout); hintTimers = [];
@@ -662,22 +713,26 @@ function initSimTwinViewer(container){
   const clock = new THREE.Clock();
   function tick(){
     const now = performance.now(), t = clock.getElapsedTime();
-    if (!reduceMotion) model.position.y = .025 * Math.sin(t * 1.25);          // idle bob
-    if (!reduceMotion && !dragging && !demo &&
-        now >= nextDemoAt && now - lastInteraction > 4500){
-      demo = { t0: now, dur: 2600 };                                          // start auto-demo nudge
-    }
-    if (demo){
-      const p = Math.min(1, (now - demo.t0) / demo.dur);
-      const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;         // easeInOutQuad
-      demoRig.rotation.y = .5  * Math.sin(Math.PI * e);                       // swing out, come back
-      demoRig.rotation.x = .05 * Math.sin(2 * Math.PI * e);
-      if (p >= 1){
-        demo = null; demoRig.rotation.set(0, 0, 0);                           // exactly the start pose
-        nextDemoAt = now + 7000 + Math.random() * 4000;
+    // auto motion (idle bob + periodic demo) runs only while `motion` is on; when the
+    // global Pause all is pressed everything holds on the current frame, but user
+    // orbit-drag still works via controls.update() below.
+    if (motion && !reduceMotion){
+      model.position.y = .025 * Math.sin(t * 1.25);                          // idle bob
+      if (!dragging && !demo && now >= nextDemoAt && now - lastInteraction > 4500){
+        demo = { t0: now, dur: 2600 };                                       // start auto-demo nudge
       }
-    } else {
-      demoRig.rotation.y *= .88; demoRig.rotation.x *= .88;                   // relax interrupted nudge
+      if (demo){
+        const p = Math.min(1, (now - demo.t0) / demo.dur);
+        const e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;      // easeInOutQuad
+        demoRig.rotation.y = .5  * Math.sin(Math.PI * e);                    // swing out, come back
+        demoRig.rotation.x = .05 * Math.sin(2 * Math.PI * e);
+        if (p >= 1){
+          demo = null; demoRig.rotation.set(0, 0, 0);                        // exactly the start pose
+          nextDemoAt = now + 7000 + Math.random() * 4000;
+        }
+      } else {
+        demoRig.rotation.y *= .88; demoRig.rotation.x *= .88;                // relax interrupted nudge
+      }
     }
     controls.update();
     renderer.render(scene, camera);
@@ -708,21 +763,33 @@ function initSimTwinViewer(container){
   window.addEventListener('resize', resize);
   resize();
   updateRunning();
+
+  // handle for the global teaser Play all / Pause all control
+  return {
+    play(){ motion = true; lastInteraction = performance.now(); nextDemoAt = performance.now() + 2600; },
+    pause(){ motion = false; demo = null; }   // freeze on the current frame
+  };
 }
 
-try {
-  const container = document.getElementById('simtwin');
-  if (container){
-    initSimTwinViewer(container);
+// Mount one viewer per teaser slot; register its handle so the global
+// Play all / Pause all pill (wired in the head script) can drive both.
+window.__teaserViewers = window.__teaserViewers || [];
+function mountViewer(id){
+  const container = document.getElementById(id);
+  if (!container) return;
+  try {
+    const api = makeViewer(container);
     const fb = container.querySelector('.simtwin-fallback');
     if (fb) fb.remove();
-    window.__simtwinReady = true;
+    if (api) window.__teaserViewers.push(api);
+  } catch (err){
+    console.error('viewer "' + id + '" failed to start:', err);
+    const sub = container.querySelector('.simtwin-fallback .ph-sub');
+    if (sub) sub.textContent = '3D preview unavailable in this browser';
   }
-} catch (err){
-  console.error('sim-twin viewer failed to start:', err);
-  const sub = document.querySelector('#simtwin .simtwin-fallback .ph-sub');
-  if (sub) sub.textContent = '3D preview unavailable in this browser';
 }
+mountViewer('simtwin');     // Sim replay
+mountViewer('policytwin');  // Policy-derived
 </script>
 </body>
 </html>
