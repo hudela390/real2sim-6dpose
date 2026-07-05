@@ -134,19 +134,18 @@
     <p class="sub">Watch the pose lock in as each cue is added. RGBTrack on scale-calibrated depth alone is jittery and rotation-ambiguous; our assembly — the frame-0 6-DoF anchor plus the gripper kinematics (<code>h5</code>), with <b>no GoTrack anywhere</b> — stabilises the in-hand pose; the final track then folds in GoTrack (as a near-ground-truth anchor) with light smoothing.</p>
     <div class="toolbar"><span>synced · muted · all restart together</span></div>
     <div class="grid g3">
-      <figure><video class="vid" data-group="prog" src="videos/prog1_rgbtrack.mp4" muted playsinline preload="auto"></video><figcaption><b>1 · RGBTrack + scaled depth</b><br>raw base — jittery, rotation-ambiguous</figcaption></figure>
-      <figure><video class="vid" data-group="prog" src="videos/prog2_h5.mp4" muted playsinline preload="auto"></video><figcaption><b>2 · frame-0 + h5</b><br>kinematic follow — no GoTrack</figcaption></figure>
-      <figure><video class="vid" data-group="prog" src="videos/prog3_final.mp4" muted playsinline preload="auto"></video><figcaption><b>3 · final</b><br>+ GoTrack (as GT) + smoothing</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog1_rgbtrack.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>1 · RGBTrack + scaled depth</b><br>raw base — jittery, rotation-ambiguous</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog2_h5.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>2 · frame-0 + h5</b><br>kinematic follow — no GoTrack</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog3_final.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>3 · final</b><br>+ GoTrack (as GT) + smoothing</figcaption></figure>
     </div>
 
     <h3 class="subhead">Dataset sequences</h3>
-    <p class="sub">The final pipeline across four teleoperated sequences, each cut at the drop-and-settle.</p>
+    <p class="sub">The final pipeline across three teleoperated sequences, each cut at the drop-and-settle.</p>
     <div class="toolbar"><span>synced · muted · all restart together · shortest → longest</span></div>
-    <div class="grid g4">
-      <figure><video class="vid" data-group="duck" src="videos/duck_104715.mp4" muted playsinline preload="auto"></video><figcaption><b>104715</b></figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_105719.mp4" muted playsinline preload="auto"></video><figcaption><b>105719</b></figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_110548.mp4" muted playsinline preload="auto"></video><figcaption><b>110548</b></figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_112416.mp4" muted playsinline preload="auto"></video><figcaption><b>112416</b></figcaption></figure>
+    <div class="grid g3">
+      <figure><video class="vid" data-group="duck" src="videos/duck_104715.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>104715</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_105719.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>105719</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_112416.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>112416</b></figcaption></figure>
     </div>
   </div>
 </section>
@@ -157,9 +156,9 @@
     <p class="sub">The same design transfers to a different egocentric camera and a near-circular object (a frying pan) by swapping <em>only</em> the front-end segmentation to a single SAM3 <code>"pan"</code> text prompt.</p>
     <div class="toolbar"><span>synced · muted · all restart together · shortest → longest</span></div>
     <div class="grid g3">
-      <figure><video class="vid" data-group="maple" src="videos/pan_143550.mp4" muted playsinline preload="auto"></video><figcaption><b>143550</b></figcaption></figure>
-      <figure><video class="vid" data-group="maple" src="videos/pan_143954.mp4" muted playsinline preload="auto"></video><figcaption><b>143954</b></figcaption></figure>
-      <figure><video class="vid" data-group="maple" src="videos/pan_144647.mp4" muted playsinline preload="auto"></video><figcaption><b>144647</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_143550.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>143550</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_143954.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>143954</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_144647.mp4" muted autoplay playsinline preload="auto"></video><figcaption><b>144647</b></figcaption></figure>
     </div>
   </div>
 </section>
