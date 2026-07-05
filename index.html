@@ -270,7 +270,7 @@
         }
         var maxDur = Math.max.apply(null, vids.map(function(v){ return v.duration || 6; }));
         function playAll(){ vids.forEach(function(v){ v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function(){}); }); }
-        (function cycle(){ playAll(); setTimeout(cycle, (maxDur + 3) * 1000); })();
+        (function cycle(){ playAll(); setTimeout(cycle, (maxDur + 2) * 1000); })();
       });
     });
     // fallback: if a browser blocks muted autoplay, kick everything on first interaction
