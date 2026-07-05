@@ -55,8 +55,11 @@
   /* video grids */
   .grid{display:grid; gap:16px}
   .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
   .g2{grid-template-columns:repeat(2,1fr)}
-  @media(max-width:820px){.g3,.g2{grid-template-columns:1fr}}
+  @media(max-width:820px){.g3,.g4,.g2{grid-template-columns:1fr}}
+  @media(min-width:821px) and (max-width:1040px){.g4{grid-template-columns:repeat(2,1fr)}}
+  h3.subhead{font-size:1.12rem; margin:30px 0 4px}
   figure{margin:0}
   .vid{width:100%; border-radius:12px; border:1px solid var(--line); background:#000; display:block; aspect-ratio:4/3}
   figcaption{color:var(--muted); font-size:.9rem; margin-top:8px; text-align:center}
@@ -124,25 +127,26 @@
 
 <section id="duck">
   <div class="wrap">
-    <h2>Egoverse duck <span class="tag">full rollout</span></h2>
-    <p class="sub">Three teleoperated pick-and-place sequences: grasp → carry → drop into the bowl → settle. Green box = the tracked CAD pose overlaid on the egocentric RGB.</p>
-    <div class="toolbar"><button class="replay" data-group="duck">⟲ Replay in sync</button><span>looping · muted</span></div>
-    <div class="grid g3">
-      <figure><video class="vid" data-group="duck" src="videos/duck_104715.mp4" muted loop autoplay playsinline></video><figcaption><b>104715</b> — grasp, drop &amp; settle</figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_105719.mp4" muted loop autoplay playsinline></video><figcaption><b>105719</b> — grasp, drop &amp; settle</figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_112416.mp4" muted loop autoplay playsinline></video><figcaption><b>112416</b> — grasp, drop &amp; settle</figcaption></figure>
-    </div>
-  </div>
-</section>
+    <h2>Egoverse duck</h2>
+    <p class="sub">Teleoperated pick-and-place: grasp → carry → drop into the bowl → settle. The green box is the tracked CAD pose overlaid on the egocentric RGB. (The subsequent re-grasp out of the bowl is not addressed and is cut.)</p>
 
-<section id="refine">
-  <div class="wrap">
-    <h2>Refining the released phase <span class="tag">before / after</span></h2>
-    <p class="sub">When the object leaves the hand, a naive base loses track. Re-initialising GoTrack from a mask-corrected base and lightly filtering &amp; smoothing the fall recovers a clean drop-to-rest (scene 105719).</p>
-    <div class="toolbar"><button class="replay" data-group="refine">⟲ Replay in sync</button><span>looping · muted</span></div>
-    <div class="grid g2">
-      <figure><video class="vid" data-group="refine" src="videos/duck_105719_before.mp4" muted loop autoplay playsinline></video><figcaption>before — naive released phase</figcaption></figure>
-      <figure><video class="vid" data-group="refine" src="videos/duck_105719.mp4" muted loop autoplay playsinline></video><figcaption><b>after</b> — GoTrack-drop + filter &amp; smooth</figcaption></figure>
+    <h3 class="subhead">Method progression <span class="tag">104715</span></h3>
+    <p class="sub">Watch the pose lock in as each cue is added. RGBTrack on scale-calibrated depth alone is jittery and rotation-ambiguous; our assembly — the frame-0 6-DoF anchor plus the gripper kinematics (<code>h5</code>), with <b>no GoTrack anywhere</b> — stabilises the in-hand pose; the final track then folds in GoTrack (as a near-ground-truth anchor) with light smoothing.</p>
+    <div class="toolbar"><button class="replay" data-group="prog">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="grid g3">
+      <figure><video class="vid" data-group="prog" src="videos/prog1_rgbtrack.mp4" muted loop autoplay playsinline></video><figcaption><b>1 · RGBTrack + scaled depth</b><br>raw base — jittery, rotation-ambiguous</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog2_h5.mp4" muted loop autoplay playsinline></video><figcaption><b>2 · frame-0 + h5</b><br>kinematic follow — no GoTrack</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog3_final.mp4" muted loop autoplay playsinline></video><figcaption><b>3 · final</b><br>+ GoTrack (as GT) + smoothing</figcaption></figure>
+    </div>
+
+    <h3 class="subhead">Dataset sequences</h3>
+    <p class="sub">The final pipeline across four teleoperated sequences, each cut at the drop-and-settle.</p>
+    <div class="toolbar"><button class="replay" data-group="duck">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="grid g4">
+      <figure><video class="vid" data-group="duck" src="videos/duck_104715.mp4" muted loop autoplay playsinline></video><figcaption><b>104715</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_105719.mp4" muted loop autoplay playsinline></video><figcaption><b>105719</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_110548.mp4" muted loop autoplay playsinline></video><figcaption><b>110548</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_112416.mp4" muted loop autoplay playsinline></video><figcaption><b>112416</b></figcaption></figure>
     </div>
   </div>
 </section>
