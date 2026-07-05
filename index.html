@@ -79,8 +79,7 @@
       <span class="venue-pill">ETH Zürich · 3D Vision course project</span>
       <h1 class="title is-1 publication-title">Real-to-Sim 6-DoF Object Pose</h1>
       <h2 class="subtitle is-4" style="color:var(--muted)">
-        Depth-sensor-free object-pose tracking through <b>grasp, transport &amp; release</b> —
-        transferring egocentric robot demonstrations into simulation.
+        Depth-sensor-free 6-DoF object pose from a single egocentric RGB stream.
       </h2>
 
       <!-- EDIT author names here -->
@@ -121,9 +120,8 @@
         <p class="vcap"><b>Simulation</b> — from the real-to-sim side</p>
       </div>
     </div>
-    <p class="vcap" style="max-width:660px;margin:1rem auto 0">
-      The tracked CAD pose (green box + axes) overlaid on a single egocentric RGB stream — no depth sensor —
-      across a full grasp → carry → drop → settle. The simulation twin will play alongside it.
+    <p class="vcap" style="max-width:560px;margin:1rem auto 0">
+      Tracked CAD pose on egocentric RGB — grasp → carry → drop → settle. No depth sensor.
     </p>
   </div>
 </section>
@@ -136,16 +134,10 @@
     <h2 class="title is-3 has-text-centered">Abstract</h2>
     <div class="content has-text-justified is-size-5" style="color:#31363c">
       <p>
-        Transferring a teleoperated robot demonstration into a physics simulator requires the manipulated
-        object's full per-frame 6-DoF trajectory in the camera frame. Our recordings provide only a
-        <b>single egocentric RGB stream — no metric depth sensor</b> — plus a teleoperation log of the
-        robot and gripper joints. Recovering pose is hard: the objects are near-symmetric (a rubber duck,
-        a circular pan), so appearance alone leaves rotation ambiguous, and the gripper heavily but
-        <em>intermittently</em> occludes the object through grasp, transport and release. We therefore
-        <b>anchor a single high-quality pose and propagate it</b> with a model-based tracker, correcting it
-        with the joint kinematics and the object mask rather than trusting any single per-frame estimate.
-        The result is a per-frame trajectory a simulator can replay, generalizing across scenes and — by
-        swapping only the front-end segmentation — across datasets and object geometries.
+        Replaying a teleoperated demo in simulation needs the object's per-frame 6-DoF trajectory, but we
+        have only a <b>single egocentric RGB stream — no depth sensor</b> — plus the robot/gripper joint log.
+        The objects are near-symmetric and intermittently occluded, so we <b>anchor one high-quality pose
+        and propagate it</b> with a model-based tracker, corrected by the joint kinematics and the object mask.
       </p>
     </div>
   </div>
@@ -157,16 +149,15 @@
 <section class="section">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Method</h2>
-    <p class="has-text-centered" style="color:var(--muted);max-width:60ch;margin:0 auto 1.6rem">
-      A model-based base track, anchored once, then corrected per phase from whichever signal is most
-      trustworthy — partitioned at the ungrasp into an in-hand part and a drop-to-rest part.
+    <p class="has-text-centered" style="color:var(--muted);max-width:56ch;margin:0 auto 1.6rem">
+      Anchor once, then correct per phase from the most trustworthy signal — split at the ungrasp.
     </p>
     <div class="steps">
-      <div class="stepcard"><span class="n">1</span><h4>Front end</h4><p>Per-frame object mask (SAM2 / SAM3) + a scale-calibrated monocular-depth stream. No depth sensor.</p></div>
-      <div class="stepcard"><span class="n">2</span><h4>Base + anchor</h4><p>RGBTrack base track, anchored by a frame-0 GoTrack rotation refinement to fix the ambiguous start.</p></div>
-      <div class="stepcard"><span class="n">3</span><h4>In-hand</h4><p>While gripped: position from the mask, depth from the gripper forward kinematics (<code>h5</code>), rotation from GoTrack as a cleaned noisy teacher.</p></div>
-      <div class="stepcard"><span class="n">4</span><h4>Drop → rest</h4><p>Once released and unoccluded, full-6-DoF GoTrack tracks the fall; outliers dropped, lightly smoothed.</p></div>
-      <div class="stepcard"><span class="n">5</span><h4>Compose</h4><p>Concatenate the two parts into the per-frame 4×4 trajectory consumed by the simulation replay.</p></div>
+      <div class="stepcard"><span class="n">1</span><h4>Front end</h4><p>Object mask (SAM2 / SAM3) + scale-calibrated mono-depth. No sensor.</p></div>
+      <div class="stepcard"><span class="n">2</span><h4>Base + anchor</h4><p>RGBTrack base; frame-0 GoTrack rotation fixes the ambiguous start.</p></div>
+      <div class="stepcard"><span class="n">3</span><h4>In-hand</h4><p>Position from mask, depth from gripper kinematics (<code>h5</code>), rotation from GoTrack.</p></div>
+      <div class="stepcard"><span class="n">4</span><h4>Drop → rest</h4><p>Released &amp; unoccluded: full-6-DoF GoTrack; outliers dropped, smoothed.</p></div>
+      <div class="stepcard"><span class="n">5</span><h4>Compose</h4><p>Concatenate into the per-frame 4×4 trajectory for the sim replay.</p></div>
     </div>
   </div>
 </section>
@@ -177,18 +168,15 @@
 <section class="section" id="results">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Egoverse duck</h2>
-    <p class="has-text-centered" style="color:var(--muted);max-width:64ch;margin:0 auto 1.8rem">
-      Teleoperated pick-and-place: grasp → carry → drop into the bowl → settle. The subsequent re-grasp
-      out of the bowl is not addressed and is cut.
+    <p class="has-text-centered" style="color:var(--muted);max-width:60ch;margin:0 auto 1.8rem">
+      Teleoperated pick-and-place: grasp → carry → drop → settle. (Re-grasp out of the bowl is cut.)
     </p>
 
     <h3 class="title is-4 has-text-centered">Method progression <span class="tagchip">104715</span></h3>
-    <p class="has-text-centered" style="color:var(--muted);max-width:66ch;margin:0 auto 1rem">
-      Watch the pose lock in as each cue is added. RGBTrack on scaled depth alone is jittery and
-      rotation-ambiguous; anchoring the frame-0 orientation with a <em>single</em> GoTrack refinement and
-      then propagating it rigidly by the gripper kinematics (<code>h5</code>) — <b>no per-frame GoTrack</b> —
-      already stabilises the in-hand pose; the final track then folds in windowed GoTrack (as a
-      near-ground-truth anchor) with light smoothing.
+    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1rem">
+      Each cue added in turn: raw RGBTrack is jittery; a single GoTrack frame-0 anchor + gripper
+      kinematics (<code>h5</code>) stabilise the in-hand pose (<b>no per-frame GoTrack</b>); the final folds
+      in windowed GoTrack with light smoothing.
     </p>
     <p class="sync-note">synced · muted · all restart together</p>
     <div class="video-grid" data-noreorder>
@@ -215,11 +203,10 @@
 <section class="section">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Cross-dataset: MAPLE pan <span class="tagchip">generalization</span></h2>
-    <p class="has-text-centered" style="color:var(--muted);max-width:68ch;margin:0 auto 1.2rem">
-      The same design transfers to a different egocentric camera and a near-circular object (a frying pan)
-      by swapping <em>only</em> the front-end segmentation to a single SAM3 <code>"pan"</code> text prompt.
-      In such easier settings — larger, less-occluded objects — the <code>h5</code> proprioceptive step can be
-      <b>skipped entirely</b> and the pose recovered fully from vision.
+    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.2rem">
+      Transfers to another camera and a near-circular pan by swapping only the front-end to a SAM3
+      <code>"pan"</code> prompt. For larger, less-occluded objects the <code>h5</code> step is
+      <b>skipped</b> — pose fully from vision.
     </p>
     <p class="sync-note">synced · muted · shortest → longest · all restart together</p>
     <div class="video-grid">
@@ -238,10 +225,9 @@
     <h2 class="title is-3 has-text-centered">3D reconstructions <span class="tagchip">coming soon</span></h2>
     <div class="soon">
       <div class="emoji">🧊</div>
-      <p style="color:var(--muted);max-width:56ch;margin:.6rem auto 0">
-        Physics-based Isaac&nbsp;Sim replays and interactive 3D of the reconstructed manipulation will appear
-        here as the real-to-sim side comes online — an embedded viewer
-        (<code>&lt;model-viewer&gt;</code> / three.js) alongside the video comparisons above.
+      <p style="color:var(--muted);max-width:50ch;margin:.6rem auto 0">
+        Isaac&nbsp;Sim replays and interactive 3D of the reconstruction will land here — an embedded viewer
+        alongside the videos above.
       </p>
     </div>
   </div>
