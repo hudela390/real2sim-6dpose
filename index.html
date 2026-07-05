@@ -178,19 +178,14 @@
 
 <hr class="divider">
 
-<!-- ============ RESULTS ============ -->
-<section class="section" id="results">
+<!-- ============ METHOD PROGRESSION ============ -->
+<section class="section" id="progression">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Egoverse duck</h2>
-    <p class="has-text-centered" style="color:var(--muted);max-width:60ch;margin:0 auto 1.8rem">
-      Teleoperated pick-and-place: grasp → carry → drop → settle. (Re-grasp out of the bowl is cut.)
-    </p>
-
-    <h3 class="title is-4 has-text-centered">Method progression</h3>
+    <h2 class="title is-3 has-text-centered">Method progression</h2>
     <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.4rem">
-      Each cue added in turn: the raw 6D track is jittery; a single refined frame-0 anchor + gripper
-      kinematics stabilise the in-hand pose (<b>no per-frame refinement</b>); the final folds in windowed
-      6D refinement with light smoothing.
+      Each cue added in turn, on a teleoperated pick-and-place: the raw 6D track is jittery; a single
+      refined frame-0 anchor + gripper kinematics stabilise the in-hand pose (<b>no per-frame refinement</b>);
+      the final folds in windowed 6D refinement with light smoothing.
     </p>
     <div class="video-grid" data-noreorder>
       <div class="vitem"><video class="result-video" src="videos/prog1_rgbtrack.mp4" muted autoplay playsinline preload="auto"></video>
@@ -200,23 +195,29 @@
       <div class="vitem"><video class="result-video" src="videos/prog3_final.mp4" muted autoplay playsinline preload="auto"></video>
         <p class="vcap"><b>3 · final</b><br>+ 6D refinement + smoothing</p></div>
     </div>
+  </div>
+</section>
 
-    <h3 class="title is-4 has-text-centered" style="margin-top:2.8rem">Dataset sequences</h3>
+<hr class="divider">
+
+<!-- ============ DATASETS (egoverse duck + pan) ============ -->
+<section class="section" id="results">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Datasets</h2>
+
+    <h3 class="title is-4 has-text-centered" style="margin-top:.4rem">Egoverse duck</h3>
+    <p class="has-text-centered" style="color:var(--muted);max-width:60ch;margin:0 auto 1.2rem">
+      Teleoperated pick-and-place: grasp → carry → drop → settle. (Re-grasp out of the bowl is cut.)
+    </p>
     <div class="video-grid" data-controls>
       <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_104715.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Sequence 1</b></p></div>
       <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_110548.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Sequence 2</b></p></div>
       <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_112416.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Sequence 3</b></p></div>
     </div>
     <div class="grid-controls"><button class="resync-btn"><i class="fas fa-rotate-right">&nbsp;</i>Resync</button></div>
-  </div>
-</section>
 
-<hr class="divider">
-
-<section class="section">
-  <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Cross-dataset: pan <span class="tagchip">generalization</span></h2>
-    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.4rem">
+    <h3 class="title is-4 has-text-centered" style="margin-top:2.8rem">Cross-dataset: pan <span class="tagchip">generalization</span></h3>
+    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.2rem">
       Transfers to another camera and a near-circular pan by swapping only the segmentation prompt.
       For larger, less-occluded objects the kinematics step is <b>skipped</b> — pose fully from vision.
     </p>
