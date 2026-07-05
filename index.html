@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real-to-Sim 6-DoF Object Pose</title>
+<meta name="description" content="Depth-sensor-free 6-DoF object-pose tracking through grasp, transport and release, for transferring egocentric robot demonstrations into simulation.">
+<style>
+  :root{
+    --bg:#ffffff; --fg:#151719; --muted:#5b6470; --line:#e6e8ec;
+    --card:#f7f8fa; --accent:#2f6df6; --accent-soft:#eaf1ff; --code:#eef1f5;
+    --maxw:1080px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0e1013; --fg:#e9ecf1; --muted:#9aa4b2; --line:#23272e;
+           --card:#15181d; --accent:#5b8cff; --accent-soft:#182338; --code:#161a20; }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; background:var(--bg); color:var(--fg);
+       font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1,h2,h3{line-height:1.2; letter-spacing:-0.01em}
+  section{padding:46px 0; border-top:1px solid var(--line)}
+  section:first-of-type{border-top:none}
+  h2{font-size:1.55rem; margin:0 0 6px}
+  .sub{color:var(--muted); margin:0 0 26px; max-width:70ch}
+
+  /* hero */
+  header{padding:64px 0 40px; text-align:center}
+  header h1{font-size:2.5rem; margin:0 0 14px}
+  @media(max-width:640px){header h1{font-size:1.9rem}}
+  .tagline{font-size:1.12rem; color:var(--muted); max-width:62ch; margin:0 auto 22px}
+  .authors{color:var(--fg); font-weight:600; margin:6px 0 2px}
+  .affil{color:var(--muted); font-size:.95rem; margin:0 0 26px}
+  .btns{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .btn{display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:999px;
+       border:1px solid var(--line); background:var(--card); color:var(--fg); font-weight:600; font-size:.95rem}
+  .btn:hover{border-color:var(--accent); text-decoration:none}
+  .btn.soon{opacity:.55; cursor:default}
+
+  /* pipeline */
+  .steps{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:8px}
+  @media(max-width:820px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px}
+  .step .n{display:inline-flex; width:24px; height:24px; align-items:center; justify-content:center;
+           border-radius:7px; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:.85rem; margin-bottom:8px}
+  .step h3{font-size:.98rem; margin:0 0 4px}
+  .step p{margin:0; color:var(--muted); font-size:.88rem; line-height:1.5}
+
+  /* video grids */
+  .grid{display:grid; gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g2{grid-template-columns:1fr}}
+  figure{margin:0}
+  .vid{width:100%; border-radius:12px; border:1px solid var(--line); background:#000; display:block; aspect-ratio:4/3}
+  figcaption{color:var(--muted); font-size:.9rem; margin-top:8px; text-align:center}
+  figcaption b{color:var(--fg)}
+  .toolbar{display:flex; align-items:center; gap:10px; margin-bottom:14px; color:var(--muted); font-size:.9rem}
+  .replay{cursor:pointer; padding:6px 13px; border-radius:999px; border:1px solid var(--line);
+          background:var(--card); color:var(--fg); font-weight:600; font-size:.85rem}
+  .replay:hover{border-color:var(--accent)}
+  .tag{display:inline-block; padding:2px 9px; border-radius:999px; background:var(--accent-soft);
+       color:var(--accent); font-size:.72rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; vertical-align:middle}
+
+  /* 3D placeholder */
+  .soon-card{background:var(--card); border:1px dashed var(--line); border-radius:14px; padding:40px 24px; text-align:center}
+  .soon-card .big{font-size:2rem; margin-bottom:6px}
+  .soon-card p{color:var(--muted); margin:6px auto 0; max-width:56ch}
+
+  ul.facts{margin:0; padding-left:1.1em; color:var(--muted)}
+  ul.facts li{margin:4px 0}
+  ul.facts b{color:var(--fg)}
+  code{background:var(--code); padding:1px 6px; border-radius:6px; font-size:.9em}
+  footer{border-top:1px solid var(--line); padding:34px 0 60px; color:var(--muted); font-size:.9rem; text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Real-to-Sim 6-DoF Object Pose</h1>
+    <p class="tagline">Depth-sensor-free object-pose tracking through <b>grasp, transport and release</b> — recovering the full 6-DoF trajectory of a manipulated object from a single egocentric RGB video, so teleoperated robot demonstrations can be replayed in simulation.</p>
+    <p class="authors">Team&nbsp;22</p>
+    <p class="affil">ETH&nbsp;Zürich · 3D&nbsp;Vision course project</p>
+    <div class="btns">
+      <a class="btn" href="https://github.com/3dv-fs26-real2sim/RGBTrack-3DV-">◧ Code (RGBTrack-3DV)</a>
+      <a class="btn" href="#duck">▶ Results</a>
+      <span class="btn soon">📄 Report (soon)</span>
+    </div>
+  </div>
+</header>
+
+<section id="overview">
+  <div class="wrap">
+    <h2>Overview</h2>
+    <p class="sub">We recover the full per-frame 6-DoF trajectory of a manipulated object from a <b>single egocentric RGB stream — no depth sensor</b> — so that teleoperated robot demonstrations can be transferred into a physics simulator. This is hard: the objects are near-symmetric (a rubber duck, a circular pan), so appearance alone leaves rotation ambiguous, and the gripper heavily but <em>intermittently</em> occludes the object throughout grasp, transport and release. We therefore <b>anchor one high-quality pose and propagate it</b> with a model-based tracker, correcting it with the robot's joint log and the object mask rather than trusting any single per-frame estimate.</p>
+    <ul class="facts">
+      <li>Input: egocentric RGB @ 50&nbsp;fps + a teleoperation log (<code>h5</code>) of robot &amp; gripper joints; known CAD mesh.</li>
+      <li>No metric depth sensor — depth is estimated monocularly and scale-calibrated against the object silhouette.</li>
+      <li>Output: a per-frame 4×4 object trajectory (green CAD box + axes overlaid below) that a simulator can replay.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <h2>Method</h2>
+    <p class="sub">A model-based base track, anchored once, then corrected per phase from whichever signal is most trustworthy. The rollout is partitioned at the ungrasp into an <b>in-hand</b> part and a <b>drop-to-rest</b> part.</p>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><h3>Front end</h3><p>Per-frame object mask (SAM2 / SAM3) + a scale-calibrated monocular-depth stream. No depth sensor.</p></div>
+      <div class="step"><span class="n">2</span><h3>Base + anchor</h3><p>RGBTrack base track, anchored by a frame-0 GoTrack rotation refinement to fix the ambiguous start.</p></div>
+      <div class="step"><span class="n">3</span><h3>In-hand</h3><p>While gripped: position from the mask, depth from the gripper forward kinematics (<code>h5</code>), rotation from GoTrack as a cleaned noisy teacher.</p></div>
+      <div class="step"><span class="n">4</span><h3>Drop → rest</h3><p>Once released and unoccluded, full-6-DoF GoTrack tracks the fall; outliers dropped, lightly smoothed. The static rest is its tail.</p></div>
+      <div class="step"><span class="n">5</span><h3>Compose</h3><p>Concatenate the two parts into the per-frame 4×4 trajectory consumed by the simulation replay.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="duck">
+  <div class="wrap">
+    <h2>Egoverse duck <span class="tag">full rollout</span></h2>
+    <p class="sub">Three teleoperated pick-and-place sequences: grasp → carry → drop into the bowl → settle. Green box = the tracked CAD pose overlaid on the egocentric RGB.</p>
+    <div class="toolbar"><button class="replay" data-group="duck">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="grid g3">
+      <figure><video class="vid" data-group="duck" src="videos/duck_104715.mp4" muted loop autoplay playsinline></video><figcaption><b>104715</b> — grasp, drop &amp; settle</figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_105719.mp4" muted loop autoplay playsinline></video><figcaption><b>105719</b> — grasp, drop &amp; settle</figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_112416.mp4" muted loop autoplay playsinline></video><figcaption><b>112416</b> — grasp, drop &amp; settle</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="refine">
+  <div class="wrap">
+    <h2>Refining the released phase <span class="tag">before / after</span></h2>
+    <p class="sub">When the object leaves the hand, a naive base loses track. Re-initialising GoTrack from a mask-corrected base and lightly filtering &amp; smoothing the fall recovers a clean drop-to-rest (scene 105719).</p>
+    <div class="toolbar"><button class="replay" data-group="refine">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="grid g2">
+      <figure><video class="vid" data-group="refine" src="videos/duck_105719_before.mp4" muted loop autoplay playsinline></video><figcaption>before — naive released phase</figcaption></figure>
+      <figure><video class="vid" data-group="refine" src="videos/duck_105719.mp4" muted loop autoplay playsinline></video><figcaption><b>after</b> — GoTrack-drop + filter &amp; smooth</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="maple">
+  <div class="wrap">
+    <h2>Cross-dataset: MAPLE pan <span class="tag">generalization</span></h2>
+    <p class="sub">The same design transfers to a different egocentric camera and a near-circular object (a frying pan) by swapping <em>only</em> the front-end segmentation to a single SAM3 <code>"pan"</code> text prompt.</p>
+    <div class="toolbar"><button class="replay" data-group="maple">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="grid g3">
+      <figure><video class="vid" data-group="maple" src="videos/pan_143550.mp4" muted loop autoplay playsinline></video><figcaption><b>143550</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_143954.mp4" muted loop autoplay playsinline></video><figcaption><b>143954</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_144647.mp4" muted loop autoplay playsinline></video><figcaption><b>144647</b></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="threed">
+  <div class="wrap">
+    <h2>3D reconstructions <span class="tag">coming soon</span></h2>
+    <div class="soon-card">
+      <div class="big">🧊</div>
+      <p>Physics-based Isaac&nbsp;Sim replays and interactive 3D of the reconstructed manipulation will appear here as the real-to-sim side of the project comes online. This section is a placeholder for embedded 3D viewers (e.g. <code>&lt;model-viewer&gt;</code> / three.js) alongside the video comparisons above.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Team&nbsp;22 · ETH&nbsp;Zürich 3D&nbsp;Vision · pose pipeline code: <a href="https://github.com/3dv-fs26-real2sim/RGBTrack-3DV-">RGBTrack-3DV</a></p>
+    <p style="margin-top:6px">Videos show the tracked CAD pose (green box + axes) overlaid on the source egocentric RGB at 50&nbsp;fps.</p>
+  </div>
+</footer>
+
+<script>
+  // "Replay in sync": restart every video in a group from 0 together.
+  document.querySelectorAll('.replay').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var g = btn.getAttribute('data-group');
+      document.querySelectorAll('video[data-group="'+g+'"]').forEach(function(v){
+        v.pause(); v.currentTime = 0;
+      });
+      // play on next tick so all seeks land first
+      setTimeout(function(){
+        document.querySelectorAll('video[data-group="'+g+'"]').forEach(function(v){ v.play(); });
+      }, 30);
+    });
+  });
+</script>
+</body>
+</html>
