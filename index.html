@@ -132,21 +132,21 @@
 
     <h3 class="subhead">Method progression <span class="tag">104715</span></h3>
     <p class="sub">Watch the pose lock in as each cue is added. RGBTrack on scale-calibrated depth alone is jittery and rotation-ambiguous; our assembly — the frame-0 6-DoF anchor plus the gripper kinematics (<code>h5</code>), with <b>no GoTrack anywhere</b> — stabilises the in-hand pose; the final track then folds in GoTrack (as a near-ground-truth anchor) with light smoothing.</p>
-    <div class="toolbar"><button class="replay" data-group="prog">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="toolbar"><span>synced · muted · all restart together</span></div>
     <div class="grid g3">
-      <figure><video class="vid" data-group="prog" src="videos/prog1_rgbtrack.mp4" muted loop autoplay playsinline></video><figcaption><b>1 · RGBTrack + scaled depth</b><br>raw base — jittery, rotation-ambiguous</figcaption></figure>
-      <figure><video class="vid" data-group="prog" src="videos/prog2_h5.mp4" muted loop autoplay playsinline></video><figcaption><b>2 · frame-0 + h5</b><br>kinematic follow — no GoTrack</figcaption></figure>
-      <figure><video class="vid" data-group="prog" src="videos/prog3_final.mp4" muted loop autoplay playsinline></video><figcaption><b>3 · final</b><br>+ GoTrack (as GT) + smoothing</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog1_rgbtrack.mp4" muted playsinline preload="auto"></video><figcaption><b>1 · RGBTrack + scaled depth</b><br>raw base — jittery, rotation-ambiguous</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog2_h5.mp4" muted playsinline preload="auto"></video><figcaption><b>2 · frame-0 + h5</b><br>kinematic follow — no GoTrack</figcaption></figure>
+      <figure><video class="vid" data-group="prog" src="videos/prog3_final.mp4" muted playsinline preload="auto"></video><figcaption><b>3 · final</b><br>+ GoTrack (as GT) + smoothing</figcaption></figure>
     </div>
 
     <h3 class="subhead">Dataset sequences</h3>
     <p class="sub">The final pipeline across four teleoperated sequences, each cut at the drop-and-settle.</p>
-    <div class="toolbar"><button class="replay" data-group="duck">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="toolbar"><span>synced · muted · all restart together · shortest → longest</span></div>
     <div class="grid g4">
-      <figure><video class="vid" data-group="duck" src="videos/duck_104715.mp4" muted loop autoplay playsinline></video><figcaption><b>104715</b></figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_105719.mp4" muted loop autoplay playsinline></video><figcaption><b>105719</b></figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_110548.mp4" muted loop autoplay playsinline></video><figcaption><b>110548</b></figcaption></figure>
-      <figure><video class="vid" data-group="duck" src="videos/duck_112416.mp4" muted loop autoplay playsinline></video><figcaption><b>112416</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_104715.mp4" muted playsinline preload="auto"></video><figcaption><b>104715</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_105719.mp4" muted playsinline preload="auto"></video><figcaption><b>105719</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_110548.mp4" muted playsinline preload="auto"></video><figcaption><b>110548</b></figcaption></figure>
+      <figure><video class="vid" data-group="duck" src="videos/duck_112416.mp4" muted playsinline preload="auto"></video><figcaption><b>112416</b></figcaption></figure>
     </div>
   </div>
 </section>
@@ -155,11 +155,11 @@
   <div class="wrap">
     <h2>Cross-dataset: MAPLE pan <span class="tag">generalization</span></h2>
     <p class="sub">The same design transfers to a different egocentric camera and a near-circular object (a frying pan) by swapping <em>only</em> the front-end segmentation to a single SAM3 <code>"pan"</code> text prompt.</p>
-    <div class="toolbar"><button class="replay" data-group="maple">⟲ Replay in sync</button><span>looping · muted</span></div>
+    <div class="toolbar"><span>synced · muted · all restart together · shortest → longest</span></div>
     <div class="grid g3">
-      <figure><video class="vid" data-group="maple" src="videos/pan_143550.mp4" muted loop autoplay playsinline></video><figcaption><b>143550</b></figcaption></figure>
-      <figure><video class="vid" data-group="maple" src="videos/pan_143954.mp4" muted loop autoplay playsinline></video><figcaption><b>143954</b></figcaption></figure>
-      <figure><video class="vid" data-group="maple" src="videos/pan_144647.mp4" muted loop autoplay playsinline></video><figcaption><b>144647</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_143550.mp4" muted playsinline preload="auto"></video><figcaption><b>143550</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_143954.mp4" muted playsinline preload="auto"></video><figcaption><b>143954</b></figcaption></figure>
+      <figure><video class="vid" data-group="maple" src="videos/pan_144647.mp4" muted playsinline preload="auto"></video><figcaption><b>144647</b></figcaption></figure>
     </div>
   </div>
 </section>
@@ -182,19 +182,32 @@
 </footer>
 
 <script>
-  // "Replay in sync": restart every video in a group from 0 together.
-  document.querySelectorAll('.replay').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var g = btn.getAttribute('data-group');
-      document.querySelectorAll('video[data-group="'+g+'"]').forEach(function(v){
-        v.pause(); v.currentTime = 0;
+  // Per comparison group: order the clips shortest -> longest (left to right),
+  // start them all together, wait for the LONGEST to finish + 3s, then restart
+  // all together. Shorter clips hold their last frame until the group restarts.
+  // The method-progression row keeps its 1 -> 2 -> 3 order (not sorted).
+  (function(){
+    document.querySelectorAll('.grid').forEach(function(grid){
+      var vids = Array.prototype.slice.call(grid.querySelectorAll('video'));
+      if (!vids.length) return;
+      var isProg = vids.some(function(v){ return /prog\d/.test(v.getAttribute('src') || ''); });
+      Promise.all(vids.map(function(v){
+        return new Promise(function(res){
+          if (v.readyState >= 1 && isFinite(v.duration)) res();
+          else v.addEventListener('loadedmetadata', res, { once: true });
+        });
+      })).then(function(){
+        if (!isProg){                                   // order shortest -> longest
+          Array.prototype.slice.call(grid.querySelectorAll('figure'))
+            .sort(function(a,b){ return a.querySelector('video').duration - b.querySelector('video').duration; })
+            .forEach(function(f){ grid.appendChild(f); });
+        }
+        var maxDur = Math.max.apply(null, vids.map(function(v){ return v.duration || 0; }));
+        function playAll(){ vids.forEach(function(v){ try { v.currentTime = 0; v.play(); } catch(e){} }); }
+        (function cycle(){ playAll(); setTimeout(cycle, (maxDur + 3) * 1000); })();
       });
-      // play on next tick so all seeks land first
-      setTimeout(function(){
-        document.querySelectorAll('video[data-group="'+g+'"]').forEach(function(v){ v.play(); });
-      }, 30);
     });
-  });
+  })();
 </script>
 </body>
 </html>
