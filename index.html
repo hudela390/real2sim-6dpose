@@ -47,8 +47,15 @@
   /* video comparison grids */
   .video-grid{ display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
   .video-grid .vitem{ flex:1 1 0; min-width:230px; max-width:520px; }
-  .result-video{ width:100%; border-radius:12px; border:1px solid #eceff3; background:#000;
-                 aspect-ratio:4/3; display:block; box-shadow:0 6px 18px rgba(20,30,50,.06); }
+  /* frames: aspect-ratio is a fallback; JS sets each video's native ratio so nothing
+     letterboxes with black bars (duck 4:3, pan 16:9). object-fit:cover hides any
+     sub-pixel sliver. */
+  .result-video{ width:100%; border-radius:14px; border:1px solid rgba(20,30,50,.07);
+                 background:#0b0d10; aspect-ratio:4/3; object-fit:cover; display:block;
+                 box-shadow:0 1px 2px rgba(20,30,50,.06), 0 12px 30px -8px rgba(20,30,50,.16);
+                 transition:box-shadow .25s ease, transform .25s ease; }
+  .vitem:hover .result-video, .vitem:hover .simtwin{
+     box-shadow:0 2px 4px rgba(20,30,50,.08), 0 18px 42px -10px rgba(20,30,50,.24); }
   .vcap{ text-align:center; color:var(--muted); font-size:.9rem; margin-top:.5rem; }
   .vcap b{ color:var(--ink); }
   .vcap-sub{ display:inline-block; font-size:.78rem; color:var(--muted); margin-top:.15rem; }
@@ -61,26 +68,46 @@
      background:transparent; border-radius:12px; cursor:pointer; color:#fff;
      display:flex; align-items:center; justify-content:center;
      -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-  .vbtn i{ font-size:2.6rem; line-height:1;
-     filter:drop-shadow(0 1px 2px rgba(0,0,0,.8)) drop-shadow(0 4px 14px rgba(0,0,0,.45));
-     opacity:0; transform:scale(.92);
+  .vbtn i{ font-size:1.9rem; line-height:1;
+     filter:drop-shadow(0 1px 2px rgba(0,0,0,.7)) drop-shadow(0 3px 10px rgba(0,0,0,.4));
+     opacity:0; transform:scale(.9);
      transition:opacity .2s ease, transform .2s ease, font-size .2s ease; }
-  .vwrap:hover .vbtn i, .vbtn:focus-visible i{ opacity:.82; transform:scale(1); }
-  .vbtn.paused i{ opacity:1; transform:scale(1); font-size:3.2rem; }
+  .vwrap:hover .vbtn i, .vbtn:focus-visible i{ opacity:.5; transform:scale(1); }
+  .vbtn.paused i{ opacity:.72; transform:scale(1); font-size:2.2rem; }
 
-  .grid-controls{ text-align:center; margin-top:1.1rem; }
+  .grid-controls{ text-align:center; margin-top:1.1rem; display:flex; gap:.5rem;
+     justify-content:center; flex-wrap:wrap; }
   .resync-btn{ border:1px solid #d7dbe2; background:#fff; color:var(--accent); border-radius:999px;
      padding:.42rem 1.15rem; font-weight:600; font-size:.85rem; cursor:pointer; transition:all .15s ease;
      display:inline-flex; align-items:center; }
   .resync-btn:hover{ background:var(--accent); color:#fff; border-color:var(--accent); }
   @media (prefers-color-scheme:dark){ .resync-btn{ background:transparent; } }
+
+  /* fullscreen ("zoom lens") — the wrapper wraps a grid + its controls so that
+     play/pause (full-frame) and Resync stay reachable while zoomed */
+  .fs-wrap.is-fs{ position:fixed; inset:0; width:100%; height:100%; z-index:9999;
+     background:#0b0d10; display:flex; flex-direction:column; align-items:center;
+     justify-content:center; gap:1.1rem; padding:2.5vmin 3vw; box-sizing:border-box; overflow:auto; }
+  .fs-wrap.is-fs .video-grid{ width:100%; max-width:1700px; margin:0; align-items:center; }
+  .fs-wrap.is-fs .video-grid .vitem{ max-width:32%; }
+  .fs-wrap.is-fs.fs-two .video-grid .vitem{ max-width:47%; }
+  .fs-wrap.is-fs .result-video, .fs-wrap.is-fs .simtwin{ max-height:76vh; height:auto; }
+  .fs-wrap.is-fs .vcap{ color:#cdd2da; }
+  .fs-wrap.is-fs .vcap b{ color:#fff; }
+  .fs-wrap.is-fs .grid-controls{ margin-top:.2rem; }
+  .fs-wrap.is-fs .resync-btn{ background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.34); }
+  .fs-wrap.is-fs .resync-btn:hover{ background:var(--accent); border-color:var(--accent); }
+  @media(max-width:760px){ .fs-wrap.is-fs .video-grid .vitem,
+     .fs-wrap.is-fs.fs-two .video-grid .vitem{ max-width:92%; } }
   .vbtn:focus-visible, .resync-btn:focus-visible, .simtwin:focus-visible{
      outline:3px solid var(--accent); outline-offset:3px; }
 
   /* sim-twin interactive 3D viewer (matches the 4:3 result-video frame) */
-  .simtwin{ position:relative; width:100%; aspect-ratio:4/3; border-radius:12px;
-     border:1px solid #eceff3; overflow:hidden; box-shadow:0 6px 18px rgba(20,30,50,.06);
-     background:linear-gradient(165deg,#eef3fb 0%,#e0e8f4 55%,#cfdaeb 100%); cursor:grab; }
+  .simtwin{ position:relative; width:100%; aspect-ratio:4/3; border-radius:14px;
+     border:1px solid rgba(20,30,50,.07); overflow:hidden;
+     box-shadow:0 1px 2px rgba(20,30,50,.06), 0 12px 30px -8px rgba(20,30,50,.16);
+     background:linear-gradient(165deg,#eef3fb 0%,#e0e8f4 55%,#cfdaeb 100%);
+     cursor:grab; transition:box-shadow .25s ease, transform .25s ease; touch-action:pan-y; }
   .simtwin:active{ cursor:grabbing; }
   .simtwin canvas{ display:block; width:100%; height:100%; }
   .simtwin-fallback{ position:absolute; inset:0; display:flex; flex-direction:column;
@@ -155,7 +182,7 @@
 <!-- ============ TEASER (real | sim twin) ============ -->
 <section class="section" style="padding-top:0" data-stage="0">
   <div class="container is-max-desktop">
-    <div class="video-grid" data-noreorder>
+    <div class="video-grid" data-noreorder id="teaser-grid">
       <div class="vitem">
         <video class="result-video" src="videos/duck_104715.mp4" muted autoplay playsinline preload="auto"></video>
         <p class="vcap"><b>Real</b> — tracked 6-DoF pose on egocentric RGB</p>
@@ -174,6 +201,7 @@
           <span class="vcap-sub">final replay: <code>326 frames</code> @ 50&nbsp;fps (6.52&nbsp;s) for an equal side-by-side cut</span></p>
       </div>
     </div>
+    <div class="grid-controls"><button class="resync-btn fs-btn" type="button" aria-label="View the real and sim-twin side by side, fullscreen"><i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i>&nbsp;Fullscreen</button></div>
     <p class="vcap" style="max-width:560px;margin:1rem auto 0">
       Tracked CAD pose on egocentric RGB — grasp → carry → drop → settle. No depth sensor.
     </p>
@@ -319,6 +347,56 @@
   (function(){
     function tryplay(v){ var p = v.play(); if (p && p.catch) p.catch(function(){}); }
 
+    // 0a) Fit each frame to its video's native aspect ratio -> no black letterbox bars
+    //     (duck/progression are 4:3, the pan clips are 16:9).
+    document.querySelectorAll('video.result-video').forEach(function(v){
+      function fit(){ if (v.videoWidth && v.videoHeight) v.style.aspectRatio = v.videoWidth + ' / ' + v.videoHeight; }
+      if (v.readyState >= 1) fit(); else v.addEventListener('loadedmetadata', fit, { once: true });
+    });
+
+    // 0b) Fullscreen ("zoom lens") helpers. We wrap a grid + its controls in .fs-wrap and
+    //     fullscreen that wrapper so the full-frame play/pause and Resync stay reachable.
+    function fsElement(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+    function requestFs(el){ var fn = el.requestFullscreen || el.webkitRequestFullscreen; if (fn) fn.call(el); }
+    function exitFs(){ var fn = document.exitFullscreen || document.webkitExitFullscreen; if (fn) fn.call(document); }
+    function fsSupported(el){ return !!(el.requestFullscreen || el.webkitRequestFullscreen); }
+    function wrapForFullscreen(grid, controls, twoUp){
+      var wrap = document.createElement('div');
+      wrap.className = 'fs-wrap' + (twoUp ? ' fs-two' : '');
+      grid.parentNode.insertBefore(wrap, grid);
+      wrap.appendChild(grid);
+      if (controls) wrap.appendChild(controls);
+      var btn = controls && controls.querySelector('.fs-btn');   // reuse a static button if present
+      if (!btn){
+        btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'resync-btn fs-btn';
+        btn.innerHTML = '<i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i>&nbsp;Fullscreen';
+        btn.setAttribute('aria-label', 'View these videos fullscreen');
+        (controls || wrap).appendChild(btn);
+      }
+      if (!fsSupported(wrap)){ btn.style.display = 'none'; }
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        if (fsElement() === wrap) exitFs(); else requestFs(wrap);
+      });
+      return wrap;
+    }
+    function onFsChange(){
+      document.querySelectorAll('.fs-wrap').forEach(function(w){
+        var on = fsElement() === w;
+        w.classList.toggle('is-fs', on);
+        var b = w.querySelector('.fs-btn');
+        if (b){
+          b.innerHTML = on ? '<i class="fas fa-magnifying-glass-minus" aria-hidden="true"></i>&nbsp;Exit'
+                           : '<i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i>&nbsp;Fullscreen';
+          b.setAttribute('aria-label', on ? 'Exit fullscreen' : 'View these videos fullscreen');
+        }
+      });
+      window.dispatchEvent(new Event('resize'));  // let the 3D canvas + layout re-fit
+    }
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+
     // 1) Auto-synced grids (teaser + method progression): start together, restart together.
     //    Paused while offscreen to save decode work; re-entering restarts them in sync.
     document.querySelectorAll('.video-grid:not([data-controls])').forEach(function(grid){
@@ -345,6 +423,15 @@
         }, { rootMargin: '120px 0px' }).observe(grid);
       }
     });
+
+    // 1b) Teaser (Real + interactive sim-twin): give the pair its own fullscreen button.
+    (function(){
+      var tg = document.getElementById('teaser-grid');
+      if (!tg) return;
+      var gc = tg.nextElementSibling;
+      while (gc && !(gc.classList && gc.classList.contains('grid-controls'))) gc = gc.nextElementSibling;
+      wrapForFullscreen(tg, gc, true);
+    })();
 
     // 2) Controlled grids: the .vbtn covers the whole frame, so clicking anywhere on the
     //    video toggles play/pause. Resync restarts the grid together.
@@ -374,6 +461,8 @@
         ev.stopPropagation();
         vids.forEach(function(v){ v.dataset.userPaused = '0'; v.currentTime = 0; tryplay(v); });
       });
+      // add a fullscreen button next to Resync (play/pause + Resync stay reachable while zoomed)
+      if (gc) wrapForFullscreen(grid, gc, false);
       // pause offscreen, resume when back (unless the user paused it)
       if ('IntersectionObserver' in window){
         var vio = new IntersectionObserver(function(entries){
@@ -440,18 +529,28 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 /* ================================================================
    Sim-twin interactive viewer (teaser, right slot)
    ----------------------------------------------------------------
-   TODO(sim-replay): when the Isaac Sim replay is rendered, replace
-   buildPlaceholderModel() with a loader for the real animated asset:
+   TODO(sim-replay): drop in the real 3D scene here. Preferred format
+   is glTF 2.0 -- a single self-contained *.glb* (binary, with meshes,
+   PBR materials, and the baked animation clip in one file). .gltf +
+   .bin/textures also works; OBJ/FBX need their own loaders.
+
+   Put the file next to the videos (e.g. assets/sim_replay.glb) and
+   replace buildPlaceholderModel() with:
 
      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-     const gltf  = await new GLTFLoader().loadAsync('videos/sim_replay.glb');
+     const gltf  = await new GLTFLoader().loadAsync('assets/sim_replay.glb');
      const model = gltf.scene;
      const mixer = new THREE.AnimationMixer(model);
      mixer.clipAction(gltf.animations[0]).play();
-     // ...and advance `mixer.update(dt)` inside tick().
+     // ...advance `mixer.update(clock.getDelta())` inside tick().
 
-   The replay must be 326 frames @ 50 fps (6.52 s), looped, so it
-   cuts side-by-side against the real video on the left.
+   The replay must be 326 frames @ 50 fps (6.52 s), looped, so it cuts
+   side-by-side against the real video on the left.
+
+   Scrollability: OrbitControls zoom is intentionally OFF and the canvas
+   uses touch-action:pan-y, so the mouse wheel / touch keeps scrolling
+   the PAGE rather than being trapped by the viewer. To let viewers
+   zoom the real scene instead, set `controls.enableZoom = true`.
    ================================================================ */
 
 function buildPlaceholderModel(){
@@ -514,6 +613,9 @@ function initSimTwinViewer(container){
   controls.enableZoom = false;  controls.enablePan = false;   // the wheel keeps scrolling the page
   controls.minPolarAngle = .45; controls.maxPolarAngle = 1.45;
   controls.update();
+  // keep the PAGE scrollable over the viewer: allow vertical pan-through on touch
+  // (OrbitControls sets touch-action:none; we relax it to pan-y). Mouse drag still orbits.
+  renderer.domElement.style.touchAction = 'pan-y';
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hint = container.querySelector('.simtwin-hint');
