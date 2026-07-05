@@ -29,6 +29,15 @@
                background:#eaf1ff; color:var(--accent); font-weight:600; font-size:.85rem; }
   .teaser-video{ width:100%; max-width:520px; border-radius:14px; border:1px solid #eceff3;
                  box-shadow:0 10px 30px rgba(20,30,50,.08); background:#000; aspect-ratio:4/3; }
+  .simtwin-ph{ width:100%; aspect-ratio:4/3; border:2px dashed #cfd6e0; border-radius:12px;
+     background:repeating-linear-gradient(45deg,#fbfcfe,#fbfcfe 12px,#f3f6fb 12px,#f3f6fb 24px);
+     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.3rem;
+     text-align:center; padding:1rem; }
+  .simtwin-ph .emoji{ font-size:2rem; }
+  .simtwin-ph .ph-title{ font-family:'Google Sans'; font-weight:700; font-size:1.15rem; color:var(--ink); }
+  .simtwin-ph .ph-sub{ color:var(--muted); font-size:.85rem; }
+  .simtwin-ph .ph-spec{ margin-top:.4rem; color:var(--accent); font-size:.82rem; font-weight:600; line-height:1.45; }
+  .simtwin-ph code{ background:#eaf1ff; color:var(--accent); }
 
   .tagchip{ display:inline-block; margin-left:.5rem; padding:.1rem .6rem; border-radius:999px;
             background:#eaf1ff; color:var(--accent); font-size:.68rem; font-weight:700;
@@ -94,13 +103,27 @@
   </div>
 </section>
 
-<!-- ============ TEASER ============ -->
+<!-- ============ TEASER (real | sim twin) ============ -->
 <section class="section" style="padding-top:0">
-  <div class="container is-max-desktop has-text-centered">
-    <video class="teaser-video" src="videos/duck_104715.mp4" muted autoplay loop playsinline preload="auto"></video>
-    <p class="vcap" style="max-width:640px;margin:.8rem auto 0">
+  <div class="container is-max-desktop">
+    <div class="video-grid" data-noreorder>
+      <div class="vitem">
+        <video class="result-video" src="videos/duck_104715.mp4" muted autoplay playsinline preload="auto"></video>
+        <p class="vcap"><b>Real</b> — tracked 6-DoF pose on egocentric RGB</p>
+      </div>
+      <div class="vitem">
+        <div class="simtwin-ph">
+          <div class="emoji">🧊</div>
+          <div class="ph-title">Sim twin</div>
+          <div class="ph-sub">Isaac Sim replay — video placeholder</div>
+          <div class="ph-spec">drop in a clip of <code>326 frames</code> @ 50&nbsp;fps<br>(6.52&nbsp;s) for an equal side-by-side cut</div>
+        </div>
+        <p class="vcap"><b>Simulation</b> — from the real-to-sim side</p>
+      </div>
+    </div>
+    <p class="vcap" style="max-width:660px;margin:1rem auto 0">
       The tracked CAD pose (green box + axes) overlaid on a single egocentric RGB stream — no depth sensor —
-      across a full grasp → carry → drop → settle.
+      across a full grasp → carry → drop → settle. The simulation twin will play alongside it.
     </p>
   </div>
 </section>
