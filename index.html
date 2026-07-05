@@ -51,6 +51,20 @@
   .vcap{ text-align:center; color:var(--muted); font-size:.9rem; margin-top:.5rem; }
   .vcap b{ color:var(--ink); }
   .sync-note{ text-align:center; color:var(--muted); font-size:.85rem; margin-bottom:1rem; }
+  .vwrap{ position:relative; line-height:0; }
+  .vbtn{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+     width:50px; height:50px; border-radius:50%; border:none; cursor:pointer; color:#fff;
+     background:rgba(20,26,36,.5); font-size:1rem; display:flex; align-items:center; justify-content:center;
+     opacity:0; transition:opacity .18s ease, background .18s ease, transform .12s ease; }
+  .vwrap:hover .vbtn{ opacity:1; }
+  .vbtn.paused{ opacity:1; background:rgba(47,109,246,.9); }
+  .vbtn:hover{ background:rgba(47,109,246,.95); transform:translate(-50%,-50%) scale(1.06); }
+  .grid-controls{ text-align:center; margin-top:1.1rem; }
+  .resync-btn{ border:1px solid #d7dbe2; background:#fff; color:var(--accent); border-radius:999px;
+     padding:.42rem 1.15rem; font-weight:600; font-size:.85rem; cursor:pointer; transition:all .15s ease;
+     display:inline-flex; align-items:center; }
+  .resync-btn:hover{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  @media (prefers-color-scheme:dark){ .resync-btn{ background:transparent; } }
 
   /* method steps */
   .steps{ display:grid; grid-template-columns:repeat(5,1fr); gap:.75rem; }
@@ -153,10 +167,10 @@
       Anchor once, then correct per phase from the most trustworthy signal — split at the ungrasp.
     </p>
     <div class="steps">
-      <div class="stepcard"><span class="n">1</span><h4>Front end</h4><p>Object mask (SAM2 / SAM3) + scale-calibrated mono-depth. No sensor.</p></div>
-      <div class="stepcard"><span class="n">2</span><h4>Base + anchor</h4><p>RGBTrack base; frame-0 GoTrack rotation fixes the ambiguous start.</p></div>
-      <div class="stepcard"><span class="n">3</span><h4>In-hand</h4><p>Position from mask, depth from gripper kinematics (<code>h5</code>), rotation from GoTrack.</p></div>
-      <div class="stepcard"><span class="n">4</span><h4>Drop → rest</h4><p>Released &amp; unoccluded: full-6-DoF GoTrack; outliers dropped, smoothed.</p></div>
+      <div class="stepcard"><span class="n">1</span><h4>Front end</h4><p>Object segmentation + scale-calibrated mono-depth. No sensor.</p></div>
+      <div class="stepcard"><span class="n">2</span><h4>Base + anchor</h4><p>Base 6D track; a refined frame-0 orientation fixes the ambiguous start.</p></div>
+      <div class="stepcard"><span class="n">3</span><h4>In-hand</h4><p>Position from the mask, depth from gripper kinematics, rotation from 6D refinement.</p></div>
+      <div class="stepcard"><span class="n">4</span><h4>Drop → rest</h4><p>Released &amp; unoccluded: full 6D refinement; outliers dropped, smoothed.</p></div>
       <div class="stepcard"><span class="n">5</span><h4>Compose</h4><p>Concatenate into the per-frame 4×4 trajectory for the sim replay.</p></div>
     </div>
   </div>
@@ -172,29 +186,28 @@
       Teleoperated pick-and-place: grasp → carry → drop → settle. (Re-grasp out of the bowl is cut.)
     </p>
 
-    <h3 class="title is-4 has-text-centered">Method progression <span class="tagchip">104715</span></h3>
-    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1rem">
-      Each cue added in turn: raw RGBTrack is jittery; a single GoTrack frame-0 anchor + gripper
-      kinematics (<code>h5</code>) stabilise the in-hand pose (<b>no per-frame GoTrack</b>); the final folds
-      in windowed GoTrack with light smoothing.
+    <h3 class="title is-4 has-text-centered">Method progression</h3>
+    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.4rem">
+      Each cue added in turn: the raw 6D track is jittery; a single refined frame-0 anchor + gripper
+      kinematics stabilise the in-hand pose (<b>no per-frame refinement</b>); the final folds in windowed
+      6D refinement with light smoothing.
     </p>
-    <p class="sync-note">synced · muted · all restart together</p>
     <div class="video-grid" data-noreorder>
       <div class="vitem"><video class="result-video" src="videos/prog1_rgbtrack.mp4" muted autoplay playsinline preload="auto"></video>
-        <p class="vcap"><b>1 · RGBTrack + scaled depth</b><br>raw base — jittery</p></div>
+        <p class="vcap"><b>1 · base 6D + scaled depth</b><br>raw — jittery</p></div>
       <div class="vitem"><video class="result-video" src="videos/prog2_h5.mp4" muted autoplay playsinline preload="auto"></video>
-        <p class="vcap"><b>2 · GoTrack frame-0 + h5</b><br>single anchor, then rigid h5 deltas</p></div>
+        <p class="vcap"><b>2 · refined frame-0 + kinematics</b><br>single anchor, then rigid deltas</p></div>
       <div class="vitem"><video class="result-video" src="videos/prog3_final.mp4" muted autoplay playsinline preload="auto"></video>
-        <p class="vcap"><b>3 · final</b><br>+ GoTrack (as GT) + smoothing</p></div>
+        <p class="vcap"><b>3 · final</b><br>+ 6D refinement + smoothing</p></div>
     </div>
 
-    <h3 class="title is-4 has-text-centered" style="margin-top:2.6rem">Dataset sequences</h3>
-    <p class="sync-note">synced · muted · shortest → longest · all restart together</p>
-    <div class="video-grid">
-      <div class="vitem"><video class="result-video" src="videos/duck_104715.mp4" muted autoplay playsinline preload="auto"></video><p class="vcap"><b>104715</b></p></div>
-      <div class="vitem"><video class="result-video" src="videos/duck_110548.mp4" muted autoplay playsinline preload="auto"></video><p class="vcap"><b>110548</b></p></div>
-      <div class="vitem"><video class="result-video" src="videos/duck_112416.mp4" muted autoplay playsinline preload="auto"></video><p class="vcap"><b>112416</b></p></div>
+    <h3 class="title is-4 has-text-centered" style="margin-top:2.8rem">Dataset sequences</h3>
+    <div class="video-grid" data-controls>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_104715.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Sequence 1</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_110548.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Sequence 2</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_112416.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Sequence 3</b></p></div>
     </div>
+    <div class="grid-controls"><button class="resync-btn"><i class="fas fa-rotate-right">&nbsp;</i>Resync</button></div>
   </div>
 </section>
 
@@ -202,18 +215,17 @@
 
 <section class="section">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Cross-dataset: MAPLE pan <span class="tagchip">generalization</span></h2>
-    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.2rem">
-      Transfers to another camera and a near-circular pan by swapping only the front-end to a SAM3
-      <code>"pan"</code> prompt. For larger, less-occluded objects the <code>h5</code> step is
-      <b>skipped</b> — pose fully from vision.
+    <h2 class="title is-3 has-text-centered">Cross-dataset: pan <span class="tagchip">generalization</span></h2>
+    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.4rem">
+      Transfers to another camera and a near-circular pan by swapping only the segmentation prompt.
+      For larger, less-occluded objects the kinematics step is <b>skipped</b> — pose fully from vision.
     </p>
-    <p class="sync-note">synced · muted · shortest → longest · all restart together</p>
-    <div class="video-grid">
-      <div class="vitem"><video class="result-video" src="videos/pan_143550.mp4" muted autoplay playsinline preload="auto"></video><p class="vcap"><b>143550</b></p></div>
-      <div class="vitem"><video class="result-video" src="videos/pan_143954.mp4" muted autoplay playsinline preload="auto"></video><p class="vcap"><b>143954</b></p></div>
-      <div class="vitem"><video class="result-video" src="videos/pan_144647.mp4" muted autoplay playsinline preload="auto"></video><p class="vcap"><b>144647</b></p></div>
+    <div class="video-grid" data-controls>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_143550.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Pan 1</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_143954.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Pan 2</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_144647.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" aria-label="play or pause"><i class="fas fa-pause"></i></button></div><p class="vcap"><b>Pan 3</b></p></div>
     </div>
+    <div class="grid-controls"><button class="resync-btn"><i class="fas fa-rotate-right">&nbsp;</i>Resync</button></div>
   </div>
 </section>
 
@@ -254,7 +266,7 @@
 <!-- ============ FOOTER ============ -->
 <footer class="footer" style="padding:2.5rem 1.5rem 3.5rem">
   <div class="container is-max-desktop has-text-centered" style="color:var(--muted)">
-    <p>Pose pipeline code: <a href="https://github.com/3dv-fs26-real2sim/RGBTrack-3DV-">RGBTrack-3DV</a>.
+    <p>Pose pipeline <a href="https://github.com/3dv-fs26-real2sim/RGBTrack-3DV-">code</a>.
        Videos show the tracked CAD pose (green box + axes) on the source egocentric RGB at 50&nbsp;fps.</p>
     <p style="margin-top:.6rem;font-size:.85rem">
       Page layout adapted from the <a href="https://nerfies.github.io/">Nerfies</a> project template.
@@ -263,11 +275,11 @@
 </footer>
 
 <script>
-  // Per comparison group (.video-grid): order clips shortest -> longest (unless
-  // data-noreorder), start all together, and 3s after the LONGEST ends, restart
-  // all together. Shorter clips hold their last frame until the group restarts.
   (function(){
-    document.querySelectorAll('.video-grid').forEach(function(grid){
+    function tryplay(v){ var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+
+    // 1) Auto-synced grids (teaser + method progression): start together, restart together.
+    document.querySelectorAll('.video-grid:not([data-controls])').forEach(function(grid){
       var vids = Array.prototype.slice.call(grid.querySelectorAll('video'));
       if (!vids.length) return;
       Promise.all(vids.map(function(v){
@@ -276,20 +288,30 @@
           else v.addEventListener('loadedmetadata', res, { once: true });
         });
       })).then(function(){
-        if (!grid.hasAttribute('data-noreorder')){
-          Array.prototype.slice.call(grid.querySelectorAll('.vitem'))
-            .sort(function(a,b){ return a.querySelector('video').duration - b.querySelector('video').duration; })
-            .forEach(function(it){ grid.appendChild(it); });
-        }
         var maxDur = Math.max.apply(null, vids.map(function(v){ return v.duration || 6; }));
-        function playAll(){ vids.forEach(function(v){ v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function(){}); }); }
+        function playAll(){ vids.forEach(function(v){ v.currentTime = 0; tryplay(v); }); }
         (function cycle(){ playAll(); setTimeout(cycle, (maxDur + 2) * 1000); })();
       });
     });
-    // fallback: if a browser blocks muted autoplay, kick everything on first interaction
-    window.addEventListener('click', function(){
-      document.querySelectorAll('video').forEach(function(v){ var p = v.play(); if (p && p.catch) p.catch(function(){}); });
-    }, { once: true });
+
+    // 2) Controlled grids (result sequences): per-video play/pause + a Resync button.
+    document.querySelectorAll('.video-grid[data-controls]').forEach(function(grid){
+      var vids = Array.prototype.slice.call(grid.querySelectorAll('video'));
+      vids.forEach(function(v){
+        var btn = v.parentNode.querySelector('.vbtn');
+        if (!btn) return;
+        function sync(){ btn.innerHTML = v.paused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>'; btn.classList.toggle('paused', v.paused); }
+        btn.addEventListener('click', function(ev){ ev.stopPropagation(); if (v.paused) tryplay(v); else v.pause(); });
+        v.addEventListener('play', sync); v.addEventListener('pause', sync); sync();
+      });
+      var gc = grid.nextElementSibling;
+      while (gc && !(gc.classList && gc.classList.contains('grid-controls'))) gc = gc.nextElementSibling;
+      var rb = gc && gc.querySelector('.resync-btn');
+      if (rb) rb.addEventListener('click', function(ev){ ev.stopPropagation(); vids.forEach(function(v){ v.currentTime = 0; tryplay(v); }); });
+    });
+
+    // fallback: if a browser blocks muted autoplay, kick videos on first interaction
+    window.addEventListener('click', function(){ document.querySelectorAll('video').forEach(tryplay); }, { once: true });
   })();
 </script>
 </body>
