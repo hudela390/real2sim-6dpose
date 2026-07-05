@@ -162,16 +162,17 @@
     <h3 class="title is-4 has-text-centered">Method progression <span class="tagchip">104715</span></h3>
     <p class="has-text-centered" style="color:var(--muted);max-width:66ch;margin:0 auto 1rem">
       Watch the pose lock in as each cue is added. RGBTrack on scaled depth alone is jittery and
-      rotation-ambiguous; the frame-0 anchor + gripper kinematics (<code>h5</code>), with <b>no GoTrack
-      anywhere</b>, stabilise the in-hand pose; the final track then folds in GoTrack (as a near-ground-truth
-      anchor) with light smoothing.
+      rotation-ambiguous; anchoring the frame-0 orientation with a <em>single</em> GoTrack refinement and
+      then propagating it rigidly by the gripper kinematics (<code>h5</code>) — <b>no per-frame GoTrack</b> —
+      already stabilises the in-hand pose; the final track then folds in windowed GoTrack (as a
+      near-ground-truth anchor) with light smoothing.
     </p>
     <p class="sync-note">synced · muted · all restart together</p>
     <div class="video-grid" data-noreorder>
       <div class="vitem"><video class="result-video" src="videos/prog1_rgbtrack.mp4" muted autoplay playsinline preload="auto"></video>
         <p class="vcap"><b>1 · RGBTrack + scaled depth</b><br>raw base — jittery</p></div>
       <div class="vitem"><video class="result-video" src="videos/prog2_h5.mp4" muted autoplay playsinline preload="auto"></video>
-        <p class="vcap"><b>2 · frame-0 + h5</b><br>kinematic follow — no GoTrack</p></div>
+        <p class="vcap"><b>2 · GoTrack frame-0 + h5</b><br>single anchor, then rigid h5 deltas</p></div>
       <div class="vitem"><video class="result-video" src="videos/prog3_final.mp4" muted autoplay playsinline preload="auto"></video>
         <p class="vcap"><b>3 · final</b><br>+ GoTrack (as GT) + smoothing</p></div>
     </div>
@@ -191,9 +192,11 @@
 <section class="section">
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Cross-dataset: MAPLE pan <span class="tagchip">generalization</span></h2>
-    <p class="has-text-centered" style="color:var(--muted);max-width:64ch;margin:0 auto 1.2rem">
+    <p class="has-text-centered" style="color:var(--muted);max-width:68ch;margin:0 auto 1.2rem">
       The same design transfers to a different egocentric camera and a near-circular object (a frying pan)
       by swapping <em>only</em> the front-end segmentation to a single SAM3 <code>"pan"</code> text prompt.
+      In such easier settings — larger, less-occluded objects — the <code>h5</code> proprioceptive step can be
+      <b>skipped entirely</b> and the pose recovered fully from vision.
     </p>
     <p class="sync-note">synced · muted · shortest → longest · all restart together</p>
     <div class="video-grid">
@@ -223,7 +226,7 @@
 
 <hr class="divider">
 
-<!-- ============ BIBTEX ============ -->
+<!-- ============ BIBTEX (commented out for now) ============
 <section class="section" id="bibtex">
   <div class="container is-max-desktop">
     <h2 class="title is-3">BibTeX</h2>
@@ -232,11 +235,12 @@
             grasp, transport and release for egocentric robot manipulation},
   author = {Team 22},
   year   = {2025},
-  note   = {ETH Zürich, 3D Vision course project},
+  note   = {ETH Zurich, 3D Vision course project},
   url    = {https://hudela390.github.io/real2sim-6dpose/}
 }</pre>
   </div>
 </section>
+============ end BibTeX ============ -->
 
 <!-- ============ FOOTER ============ -->
 <footer class="footer" style="padding:2.5rem 1.5rem 3.5rem">
