@@ -164,7 +164,7 @@
         <span class="author-block">Team&nbsp;22</span>
       </div>
       <div class="is-size-6 publication-authors" style="color:var(--muted)">
-        <span class="author-block">ETH&nbsp;Zürich — 3D&nbsp;Vision</span>
+        <span class="author-block">ETH&nbsp;Zürich · 3D&nbsp;Vision</span>
       </div>
 
       <div class="publication-links" style="margin-top:1.1rem">
@@ -185,33 +185,31 @@
     <div class="video-grid" data-noreorder id="teaser-grid">
       <div class="vitem">
         <video class="result-video" src="videos/duck_104715.mp4" muted autoplay loop playsinline preload="auto"></video>
-        <p class="vcap"><b>Real</b> — egocentric RGB capture</p>
+        <p class="vcap"><b>REAL</b><br><span class="vcap-sub">Tracked 6D pose on the teleop capture</span></p>
       </div>
       <div class="vitem">
         <div class="simtwin" id="simtwin" tabindex="0" role="application"
              aria-label="Interactive 3D preview of the sim replay. Drag with the mouse or use the arrow keys to rotate.">
           <div class="simtwin-fallback">
             <div class="emoji">🧊</div>
-            <div class="ph-title">Sim replay</div>
+            <div class="ph-title">Replay</div>
             <div class="ph-sub">loading interactive 3D preview…</div>
           </div>
           <div class="simtwin-hint" aria-hidden="true">drag to rotate ↻</div>
         </div>
-        <p class="vcap"><b>Sim replay</b> — kinematic reconstruction in sim<br>
-          <span class="vcap-sub">final replay: <code>326 frames</code> @ 50&nbsp;fps (6.52&nbsp;s)</span></p>
+        <p class="vcap"><b>REPLAY</b><br><span class="vcap-sub">In-sim replay of the 6D and teleop</span></p>
       </div>
       <div class="vitem">
         <div class="simtwin" id="policytwin" tabindex="0" role="application"
              aria-label="Interactive 3D preview of the policy-derived rollout. Drag with the mouse or use the arrow keys to rotate.">
           <div class="simtwin-fallback">
             <div class="emoji">🧊</div>
-            <div class="ph-title">Policy-derived</div>
+            <div class="ph-title">RL policy</div>
             <div class="ph-sub">loading interactive 3D preview…</div>
           </div>
           <div class="simtwin-hint" aria-hidden="true">drag to rotate ↻</div>
         </div>
-        <p class="vcap"><b>Policy-derived</b> — dynamic residual-policy rollout<br>
-          <span class="vcap-sub">final rollout: <code>326 frames</code> @ 50&nbsp;fps (6.52&nbsp;s)</span></p>
+        <p class="vcap"><b>RL POLICY</b><br><span class="vcap-sub">Learned policy from teleop and 6D</span></p>
       </div>
     </div>
     <div class="grid-controls">
@@ -219,7 +217,7 @@
       <button class="resync-btn fs-btn" type="button" aria-label="View the teaser row fullscreen"><i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i>&nbsp;Fullscreen</button>
     </div>
     <p class="vcap" style="max-width:600px;margin:1rem auto 0">
-      Real capture → kinematic reconstruction replayed in sim → policy-derived rollout. No depth sensor.
+      Real capture → in-sim replay → RL policy rollout. No depth sensor.
     </p>
   </div>
 </section>
@@ -233,7 +231,7 @@
     <div class="content has-text-justified is-size-5" style="color:#31363c">
       <p>
         Replaying a teleoperated demo in simulation needs the object's per-frame 6-DoF trajectory, but we
-        have only a <b>single egocentric RGB stream — no depth sensor</b> — plus the robot/gripper joint log.
+        have only a <b>single egocentric RGB stream, no depth sensor</b>, plus the robot and gripper joint log.
         The objects are near-symmetric and intermittently occluded, so we <b>anchor one high-quality pose
         and propagate it</b> with a model-based tracker, corrected by the joint kinematics and the object mask.
       </p>
@@ -248,7 +246,7 @@
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Method</h2>
     <p class="has-text-centered" style="color:var(--muted);max-width:56ch;margin:0 auto 1.6rem">
-      Anchor once, then correct per phase from the most trustworthy signal — split at the ungrasp.
+      Anchor once, then correct per phase from the most trustworthy signal, split at the ungrasp.
     </p>
     <div class="steps">
       <div class="stepcard"><span class="n">1</span><h4>Front end</h4><p>Object segmentation + scale-calibrated mono-depth. No sensor.</p></div>
@@ -273,7 +271,7 @@
     </p>
     <div class="video-grid" data-noreorder>
       <div class="vitem"><video class="result-video" src="videos/prog1_rgbtrack.mp4" muted autoplay playsinline preload="auto"></video>
-        <p class="vcap"><b>1 · base 6D + scaled depth</b><br>raw — jittery</p></div>
+        <p class="vcap"><b>1 · base 6D + scaled depth</b><br>raw, jittery</p></div>
       <div class="vitem"><video class="result-video" src="videos/prog2_h5.mp4" muted autoplay playsinline preload="auto"></video>
         <p class="vcap"><b>2 · refined frame-0 + kinematics</b><br>single anchor, then rigid deltas</p></div>
       <div class="vitem"><video class="result-video" src="videos/prog3_final.mp4" muted autoplay playsinline preload="auto"></video>
@@ -287,30 +285,27 @@
 <!-- ============ DATASETS (egoverse duck + pan) ============ -->
 <section class="section" id="results" data-stage="2">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Datasets</h2>
-
-    <h3 class="title is-4 has-text-centered" style="margin-top:.4rem">Egoverse duck</h3>
-    <p class="has-text-centered" style="color:var(--muted);max-width:60ch;margin:0 auto 1.2rem">
+    <h2 class="title is-3 has-text-centered" style="letter-spacing:.08em">EGOVERSE</h2>
+    <p class="has-text-centered" style="color:var(--muted);max-width:58ch;margin:0 auto 1.2rem">
       Teleoperated pick-and-place: grasp → carry → drop → settle. (Re-grasp out of the bowl is cut.)
     </p>
     <div class="video-grid" data-controls>
-      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_104715.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" data-name="Sequence 1" aria-label="Pause Sequence 1"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Sequence 1</b></p></div>
-      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_110548.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" data-name="Sequence 2" aria-label="Pause Sequence 2"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Sequence 2</b></p></div>
-      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_112416.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" data-name="Sequence 3" aria-label="Pause Sequence 3"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Sequence 3</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_104715.mp4" muted autoplay playsinline preload="auto"></video><button class="vbtn" data-name="Sequence 1" aria-label="Pause Sequence 1"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Sequence 1</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_110548.mp4" muted autoplay playsinline preload="auto"></video><button class="vbtn" data-name="Sequence 2" aria-label="Pause Sequence 2"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Sequence 2</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/duck_112416.mp4" muted autoplay playsinline preload="auto"></video><button class="vbtn" data-name="Sequence 3" aria-label="Pause Sequence 3"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Sequence 3</b></p></div>
     </div>
-    <div class="grid-controls"><button class="resync-btn" aria-label="Restart all duck sequences in sync"><i class="fas fa-rotate-right" aria-hidden="true"></i>&nbsp;Resync</button></div>
+    <div class="grid-controls"><button class="resync-btn" aria-label="Restart all EGOVERSE sequences in sync"><i class="fas fa-rotate-right" aria-hidden="true"></i>&nbsp;Resync</button></div>
 
-    <h3 class="title is-4 has-text-centered" style="margin-top:2.8rem">Cross-dataset: pan <span class="tagchip">generalization</span></h3>
-    <p class="has-text-centered" style="color:var(--muted);max-width:62ch;margin:0 auto 1.2rem">
-      Transfers to another camera and a near-circular pan by swapping only the segmentation prompt.
-      For larger, less-occluded objects the kinematics step is <b>skipped</b> — pose fully from vision.
+    <h2 class="title is-3 has-text-centered" style="letter-spacing:.08em;margin-top:3rem">MAPLE</h2>
+    <p class="has-text-centered" style="color:var(--muted);max-width:54ch;margin:0 auto 1.2rem">
+      Transfers to a new camera and object. Teleop is skippable when vision alone is strong enough.
     </p>
     <div class="video-grid" data-controls>
-      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_143550.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" data-name="Pan 1" aria-label="Pause Pan 1"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Pan 1</b></p></div>
-      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_143954.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" data-name="Pan 2" aria-label="Pause Pan 2"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Pan 2</b></p></div>
-      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_144647.mp4" muted autoplay loop playsinline preload="auto"></video><button class="vbtn" data-name="Pan 3" aria-label="Pause Pan 3"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Pan 3</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_143550.mp4" muted autoplay playsinline preload="auto"></video><button class="vbtn" data-name="Pan 1" aria-label="Pause Pan 1"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Pan 1</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_143954.mp4" muted autoplay playsinline preload="auto"></video><button class="vbtn" data-name="Pan 2" aria-label="Pause Pan 2"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Pan 2</b></p></div>
+      <div class="vitem"><div class="vwrap"><video class="result-video" src="videos/pan_144647.mp4" muted autoplay playsinline preload="auto"></video><button class="vbtn" data-name="Pan 3" aria-label="Pause Pan 3"><i class="fas fa-pause" aria-hidden="true"></i></button></div><p class="vcap"><b>Pan 3</b></p></div>
     </div>
-    <div class="grid-controls"><button class="resync-btn" aria-label="Restart all pan sequences in sync"><i class="fas fa-rotate-right" aria-hidden="true"></i>&nbsp;Resync</button></div>
+    <div class="grid-controls"><button class="resync-btn" aria-label="Restart all MAPLE sequences in sync"><i class="fas fa-rotate-right" aria-hidden="true"></i>&nbsp;Resync</button></div>
   </div>
 </section>
 
@@ -323,8 +318,8 @@
     <div class="soon">
       <div class="emoji">🧊</div>
       <p style="color:var(--muted);max-width:50ch;margin:.6rem auto 0">
-        Isaac&nbsp;Sim replays and interactive 3D of the full reconstruction will land here —
-        the sim-twin slot in the teaser already shows the interactive viewer format.
+        Isaac&nbsp;Sim replays and interactive 3D of the full reconstruction will land here.
+        The teaser viewers already show the interactive format.
       </p>
     </div>
   </div>
@@ -477,46 +472,63 @@
     //    video toggles play/pause. Resync restarts the grid together.
     document.querySelectorAll('.video-grid[data-controls]').forEach(function(grid){
       var vids = Array.prototype.slice.call(grid.querySelectorAll('video'));
+      var onScreen = true, maxDur = 6, timer = null;
+
+      // per-video: clicking anywhere on the frame toggles pause. The glyph reflects the
+      // USER's intent, so a clip resting on its last frame between loops is not shown paused.
       vids.forEach(function(v){
         var btn = v.parentNode.querySelector('.vbtn');
         if (!btn) return;
         var name = btn.getAttribute('data-name') || 'video';
         function sync(){
-          btn.innerHTML = v.paused ? '<i class="fas fa-play" aria-hidden="true"></i>'
-                                   : '<i class="fas fa-pause" aria-hidden="true"></i>';
-          btn.classList.toggle('paused', v.paused);
-          btn.setAttribute('aria-label', (v.paused ? 'Play ' : 'Pause ') + name);
+          var stopped = v.dataset.userPaused === '1';
+          btn.innerHTML = stopped ? '<i class="fas fa-play" aria-hidden="true"></i>'
+                                  : '<i class="fas fa-pause" aria-hidden="true"></i>';
+          btn.classList.toggle('paused', stopped);
+          btn.setAttribute('aria-label', (stopped ? 'Play ' : 'Pause ') + name);
         }
         btn.addEventListener('click', function(ev){
-          ev.stopPropagation();  // don't trigger the first-interaction autoplay fallback
-          if (v.paused){ v.dataset.userPaused = '0'; tryplay(v); }
+          ev.stopPropagation();
+          if (v.dataset.userPaused === '1'){ v.dataset.userPaused = '0'; v.currentTime = 0; tryplay(v); }
           else { v.dataset.userPaused = '1'; v.pause(); }
+          sync();
         });
         v.addEventListener('play', sync); v.addEventListener('pause', sync); sync();
       });
+
+      // coordinated loop: play together, hold on last frame, then 1s after the LONGEST
+      // clip ends, restart together. Skips clips the user has paused.
+      function restartAll(){ vids.forEach(function(v){ if (v.dataset.userPaused !== '1'){ v.currentTime = 0; tryplay(v); } }); }
+      function schedule(){ clearTimeout(timer); timer = setTimeout(function(){ if (onScreen) restartAll(); schedule(); }, (maxDur + 1) * 1000); }
+      Promise.all(vids.map(function(v){
+        return new Promise(function(res){
+          if (v.readyState >= 1 && isFinite(v.duration)) res();
+          else v.addEventListener('loadedmetadata', res, { once: true });
+        });
+      })).then(function(){
+        maxDur = Math.max.apply(null, vids.map(function(v){ return v.duration || 6; }));
+        restartAll(); schedule();
+      });
+
       var gc = grid.nextElementSibling;
       while (gc && !(gc.classList && gc.classList.contains('grid-controls'))) gc = gc.nextElementSibling;
       var rb = gc && gc.querySelector('.resync-btn');
-      if (rb) rb.addEventListener('click', function(ev){
+      if (rb) rb.addEventListener('click', function(ev){   // immediate synced restart + realign the timer
         ev.stopPropagation();
-        vids.forEach(function(v){ v.dataset.userPaused = '0'; v.currentTime = 0; tryplay(v); });
+        vids.forEach(function(v){ v.dataset.userPaused = '0'; });
+        restartAll(); schedule();
       });
-      // add a fullscreen button next to Resync (play/pause + Resync stay reachable while zoomed)
       if (gc) wrapForFullscreen(grid, gc, false);
-      // pause offscreen, resume when back (unless the user paused it)
+
+      // idle the whole group (and its loop) while offscreen; re-sync on return
       if ('IntersectionObserver' in window){
-        var vio = new IntersectionObserver(function(entries){
+        new IntersectionObserver(function(entries){
           entries.forEach(function(en){
-            var v = en.target;
-            if (!en.isIntersecting){
-              if (!v.paused){ v.pause(); v.dataset.offscreen = '1'; }
-            } else if (v.dataset.offscreen === '1'){
-              v.dataset.offscreen = '0';
-              if (v.dataset.userPaused !== '1') tryplay(v);
-            }
+            var was = onScreen; onScreen = en.isIntersecting;
+            if (!onScreen) vids.forEach(function(v){ if (!v.paused) v.pause(); });
+            else if (!was) restartAll();
           });
-        }, { rootMargin: '120px 0px' });
-        vids.forEach(function(v){ vio.observe(v); });
+        }, { rootMargin: '120px 0px' }).observe(grid);
       }
     });
 
@@ -548,7 +560,7 @@
     setTimeout(function(){
       document.querySelectorAll('.simtwin').forEach(function(c){
         var fb = c.querySelector('.simtwin-fallback');
-        if (fb){ var sub = fb.querySelector('.ph-sub'); if (sub) sub.textContent = '3D preview unavailable — coming soon'; }
+        if (fb){ var sub = fb.querySelector('.ph-sub'); if (sub) sub.textContent = '3D preview unavailable, coming soon'; }
       });
     }, 8000);
   })();
